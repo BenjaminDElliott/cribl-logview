@@ -1,73 +1,30 @@
-# React + TypeScript + Vite
+# Cribl Log Viewer
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Implementation
 
-Currently, two official plugins are available:
+Uses `ReadableStream` with an async generator function to parse NDJSON line-by-line as chunks arrive. Each parsed log entry is pushed into a buffer, which coalesces multiple entries and schedules a single state update via `requestAnimationFrame` per animation frame. This optimizes render performance (one React update per frame) while enabling progressive rendering—logs appear immediately upon arrival, achieving optimal time-to-first-byte without waiting for the full download.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Acceptance Criteria
 
-## React Compiler
+✅ **Two-column table**: Time (ISO 8601) and Event (single-line JSON)  
+✅ **Expand/collapse**: Click rows to toggle multiline JSON view  
+✅ **Streaming**: Progressive NDJSON parsing with immediate rendering  
+✅ **Tests**: 20 passing tests across components, hooks, and utilities
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Test Coverage
 
-## Expanding the ESLint configuration
+- LogEntry: time formatting, expand/collapse
+- LogTable: states, virtualization, scroll/resize
+- useStreamingLogs: progressive updates, error handling, malformed JSON
+- frameBatcher: requestAnimationFrame batching
+- Integration: end-to-end streaming behavior
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Additional Tests (Given More Time)
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+- Large payloads & memory limits
+- Network interruption/reconnection
+- Keyboard navigation & accessibility
+- Cross-browser compatibility
+- Performance metrics (50k+ entries)
+- Edge cases: missing fields, unicode, partial JSON
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
-
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
