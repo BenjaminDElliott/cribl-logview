@@ -23,8 +23,6 @@ Uses `ReadableStream` with an async generator function to parse NDJSON line-by-l
 
 - Large payloads & memory limits
 - Network interruption/reconnection
-- Keyboard navigation & accessibility
-- Cross-browser compatibility
 - Performance metrics (50k+ entries)
 - Edge cases: missing fields, unicode, partial JSON
 
